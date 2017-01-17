@@ -61,24 +61,12 @@ NSString *oldFormatter;
 	// Fix frame after orientation
 	- (void)fixSvolWindow{
 		// Reset frame
-		long orientation=(long)[[UIDevice currentDevice] orientation];
 		CGRect windowRect=self.frame;
 		windowRect.origin.x=0;
 		windowRect.origin.y=0;
 		
-		switch (orientation){
-			case 1:{
-				if (!sVolIsVisible) windowRect.origin.y=-20;
-			}break;
-			case 2:{
-				if (!sVolIsVisible) windowRect.origin.y=20;
-			}break;
-			case 3:{
-				if (!sVolIsVisible) windowRect.origin.x=20;
-			}break;
-			case 4:{
-				if (!sVolIsVisible) windowRect.origin.x=-20;
-			}break;
+		if (!sVolIsVisible) {
+			windowRect.origin.y = -20;
 		}
 		
 		[self setFrame:windowRect];
@@ -135,20 +123,26 @@ NSString *oldFormatter;
 					}else{
 						svolCloseInterrupt=YES;
 					}
-			
+
+					// Rotate status bar
+					CGRect windowRect=sVolWindow.frame;
+					long orientation=(long)[(SpringBoard *)[UIApplication sharedApplication] _frontMostAppOrientation];
+					[sVolWindow _rotateWindowToOrientation:orientation updateStatusBar:NO duration:nil skipCallbacks:YES];
+
+					// Correctly set status bar rect
+					CGRect mainScreenRect = [UIScreen mainScreen].bounds;
+					if (orientation == 3 || orientation == 4) {
+						windowRect = CGRectMake(0, -20, CGRectGetHeight(mainScreenRect), 20);
+					} else {
+						windowRect = CGRectMake(0, -20, CGRectGetWidth(mainScreenRect), 20);
+					}
+					[sVolWindow setFrame:windowRect];
+
 					// Animate entry
-					[UIView animateWithDuration:0.5 delay:nil options:(UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionAllowUserInteraction) animations:^{
+					[UIView animateWithDuration:0.3 delay:nil options:(UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionAllowUserInteraction) animations:^{
+
 						CGRect windowRect=sVolWindow.frame;
-				
-						// Animation dependent on orientation
-						long orientation=(long)[[UIDevice currentDevice] orientation];
-						switch (orientation){
-							case 1:windowRect.origin.y=0;break;
-							case 2:windowRect.origin.y=0;break;
-							case 3:windowRect.origin.x=0;break;
-							case 4:windowRect.origin.x=0;break;
-						}
-				
+						windowRect.origin.y = 0;
 						[sVolWindow setFrame:windowRect];
 					} completion:^(BOOL finished){
 						// Reset the timer
@@ -170,19 +164,12 @@ NSString *oldFormatter;
 		hideTimer=nil;
 		
 		// Animate hide
-		[UIView animateWithDuration:0.5 delay:0 options:(UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionAllowUserInteraction) animations:^{
+		[UIView animateWithDuration:0.3 delay:0 options:(UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionAllowUserInteraction) animations:^{
 			isAnimatingClose=YES;
 			CGRect windowRect=sVolWindow.frame;
 			
 			// Animation dependent on orientation
-			long orientation=(long)[[UIDevice currentDevice] orientation];
-			switch (orientation){
-				case 1:windowRect.origin.y=-20;break;
-				case 2:windowRect.origin.y=20;break;
-				case 3:windowRect.origin.x=20;break;
-				case 4:windowRect.origin.x=-20;break;
-			}
-			
+			windowRect.origin.y = -20;
 			[sVolWindow setFrame:windowRect];
 		} completion:^(BOOL finished){
 			// Hide the window
@@ -220,7 +207,7 @@ NSString *oldFormatter;
 		[primaryVC.view addSubview:blurView];
 		
 		int statusBarStyle = 0x12F; //Normal notification center style
-		UIInterfaceOrientation orientation = UIApplication.sharedApplication.statusBar.statusBarWindow.orientation;
+		UIInterfaceOrientation orientation = [(SpringBoard *)[UIApplication sharedApplication] _frontMostAppOrientation];
 		UIStatusBar *statusBar = [[UIStatusBar alloc] initWithFrame:CGRectMake(0,0,UIApplication.sharedApplication.statusBar.bounds.size.width,[UIStatusBar.class heightForStyle:statusBarStyle orientation:orientation])];
 		[statusBar requestStyle:statusBarStyle];
 		statusBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;

@@ -14,6 +14,7 @@
 	- (void)_finishedFullRotation:(id)arg1 finished:(id)arg2 context:(id)arg3;
 	- (void)_updateToInterfaceOrientation:(int)arg1 animated:(BOOL)arg2;
 	- (void)setHidden:(BOOL)arg1;
+	- (void)_rotateWindowToOrientation:(int)arg1 updateStatusBar:(BOOL)arg2 duration:(double)arg3 skipCallbacks:(BOOL)arg4;
 @end
 
 @interface svolWindow : UIWindow
@@ -52,6 +53,7 @@
 @interface SpringBoard : UIApplication
 	- (id)_accessibilityFrontMostApplication;
 	- (id)_keyWindowForScreen:(id)arg1;
+	- (long long)_frontMostAppOrientation;
 @end
 	
 @interface SBApplication

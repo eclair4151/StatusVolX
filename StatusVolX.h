@@ -1,67 +1,65 @@
 @interface UIApplication (ex)
-	- (UIStatusBar *)statusBar;
+- (UIStatusBar *)statusBar;
 @end
 
 @interface UIStatusBar : UIView
-	- (void)requestStyle:(int)arg1;
-	- (void)setOrientation:(int)arg1;
-	@property(nonatomic) UIStatusBarWindow *statusBarWindow;
-	+ (float)heightForStyle:(int)arg1 orientation:(int)arg2;
+- (void)requestStyle:(int)arg1;
+- (void)setOrientation:(int)arg1;
++ (float)heightForStyle:(int)arg1 orientation:(int)arg2;
+@property(nonatomic) UIStatusBarWindow *statusBarWindow;
 @end
 
 @interface UIWindow (ex)
-	- (void)_setSecure:(BOOL)arg1;
-	- (void)_finishedFullRotation:(id)arg1 finished:(id)arg2 context:(id)arg3;
-	- (void)_updateToInterfaceOrientation:(int)arg1 animated:(BOOL)arg2;
-	- (void)setHidden:(BOOL)arg1;
-	- (void)_rotateWindowToOrientation:(int)arg1 updateStatusBar:(BOOL)arg2 duration:(double)arg3 skipCallbacks:(BOOL)arg4;
+- (void)_setSecure:(BOOL)arg1;
+- (void)_finishedFullRotation:(id)arg1 finished:(id)arg2 context:(id)arg3;
+- (void)_updateToInterfaceOrientation:(int)arg1 animated:(BOOL)arg2;
+- (void)setHidden:(BOOL)arg1;
+- (void)_rotateWindowToOrientation:(int)arg1 updateStatusBar:(BOOL)arg2 duration:(double)arg3 skipCallbacks:(BOOL)arg4;
 @end
 
 @interface svolWindow : UIWindow
-	- (void)fixSvolWindow;
+- (void)fixSvolWindow;
 @end
 
 @interface StatusVolX : NSObject{
-	int volume;
-	NSTimer *hideTimer;
-	svolWindow *sVolWindow;
-	BOOL svolCloseInterrupt;
-	BOOL isAnimatingClose;
+  int volume;
+  NSTimer *hideTimer;
+  svolWindow *sVolWindow;
+  BOOL svolCloseInterrupt;
+  BOOL isAnimatingClose;
 }
-
-	@property(nonatomic) BOOL showingVolume;
-
-	- (id)init;
-	- (void)showVolume:(float)vol;
-	- (NSString *)volumeString;
-	- (void)initializeWindow;
+@property(nonatomic) BOOL showingVolume;
+- (id)init;
+- (void)showVolume:(float)vol;
+- (NSString *)volumeString;
+- (void)initializeWindow;
 @end
-	
+  
 @interface VolumeControl : NSObject
-	+ (id)sharedVolumeControl;
-	- (float)getMediaVolume;
-	- (float)volume;
++ (id)sharedVolumeControl;
+- (float)getMediaVolume;
+- (float)volume;
 @end
-	
+  
 @interface SBStatusBarStateAggregator
-	+ (id)sharedInstance;
-	- (void)_resetTimeItemFormatter;
-	- (void)_updateTimeItems;
-	- (void)_restartTimeItemTimer;
++ (id)sharedInstance;
+- (void)_resetTimeItemFormatter;
+- (void)_updateTimeItems;
+- (void)_restartTimeItemTimer;
 @end
-	
+  
 @interface SpringBoard : UIApplication
-	- (id)_accessibilityFrontMostApplication;
-	- (id)_keyWindowForScreen:(id)arg1;
-	- (long long)_frontMostAppOrientation;
+- (id)_accessibilityFrontMostApplication;
+- (id)_keyWindowForScreen:(id)arg1;
+- (long long)_frontMostAppOrientation;
 @end
-	
+  
 @interface SBApplication
-	- (_Bool)statusBarHiddenForCurrentOrientation;
+- (_Bool)statusBarHiddenForCurrentOrientation;
 @end
-	
+  
 @interface UIStatusBarWindow : UIWindow
-	+ (struct CGRect)statusBarWindowFrame;
-	- (id)initWithFrame:(struct CGRect)arg1;
-	- (int)orientation;
++ (struct CGRect)statusBarWindowFrame;
+- (id)initWithFrame:(struct CGRect)arg1;
+- (int)orientation;
 @end

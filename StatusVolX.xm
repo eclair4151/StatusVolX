@@ -10,14 +10,14 @@ NSString *oldFormatter;
 - (void)_resetTimeItemFormatter {
   %orig;
 
-  NSDateFormatter *timeFormat =MSHookIvar<NSDateFormatter *>(self,"_timeItemDateFormatter");
+  NSDateFormatter *timeFormat = MSHookIvar<NSDateFormatter *>(self,"_timeItemDateFormatter");
   if (oldFormatter == nil) {
     oldFormatter = [timeFormat dateFormat]; // Allows us to reset the format
   }
 
-  if ([svx showingVolume]){
+  if ([svx showingVolume]) {
     [timeFormat setDateFormat:[svx volumeString]];
-  } else{
+  } else {
     [timeFormat setDateFormat:oldFormatter];
   }
 }
@@ -58,7 +58,7 @@ NSString *oldFormatter;
 // StatusVol needs an auto-rotating UIWindow
 @implementation svolWindow
 // Un-hide after rotation
-- (void)_finishedFullRotation:(id)arg1 finished:(id)arg2 context:(id)arg3{
+- (void)_finishedFullRotation:(id)arg1 finished:(id)arg2 context:(id)arg3 {
   [super _finishedFullRotation:arg1 finished:arg2 context:arg3];
   [self fixSvolWindow];
   if (sVolIsVisible) {
@@ -69,9 +69,16 @@ NSString *oldFormatter;
 // Fix frame after orientation
 - (void)fixSvolWindow {
   // Reset frame
+  // Correctly set status bar rect
+  // Y origin is set to -20 before animating it back to 0
+  CGRect mainScreenRect = [UIScreen mainScreen].bounds;
   CGRect windowRect = self.frame;
-  windowRect.origin.x = 0;
-  windowRect.origin.y = 0;
+  long orientation = (long)[(SpringBoard *)[UIApplication sharedApplication] _frontMostAppOrientation];
+  if (orientation == 3 || orientation == 4) {
+    windowRect = CGRectMake(0, 0, CGRectGetHeight(mainScreenRect), 20);
+  } else {
+    windowRect = CGRectMake(0, 0, CGRectGetWidth(mainScreenRect), 20);
+  }
 
   if (!sVolIsVisible) {
     windowRect.origin.y = -20;
@@ -124,10 +131,17 @@ NSString *oldFormatter;
   SpringBoard *SB = (SpringBoard *)[UIApplication sharedApplication];
   SBApplication *SBA = (SBApplication *)[SB _accessibilityFrontMostApplication];
 
-  if (SBA != nil){
-    if ([SBA statusBarHiddenForCurrentOrientation]){
+  if (SBA != nil) {
+    if ([SBA statusBarHiddenForCurrentOrientation]) {
       // Show and set hide timer
-      if (!sVolIsVisible || isAnimatingClose){
+      if (!sVolIsVisible || isAnimatingClose) {
+        // Rotate status bar
+        long orientation = (long)[(SpringBoard *)[UIApplication sharedApplication] _frontMostAppOrientation];
+        [sVolWindow _rotateWindowToOrientation:orientation
+                               updateStatusBar:NO
+                                      duration:nil
+                                 skipCallbacks:YES];
+
         // Window adjustments
         if (!isAnimatingClose){
           [sVolWindow fixSvolWindow];
@@ -136,24 +150,6 @@ NSString *oldFormatter;
         } else{
           svolCloseInterrupt =YES;
         }
-
-        // Rotate status bar
-        CGRect windowRect = sVolWindow.frame;
-        long orientation = (long)[(SpringBoard *)[UIApplication sharedApplication] _frontMostAppOrientation];
-        [sVolWindow _rotateWindowToOrientation:orientation
-                               updateStatusBar:NO
-                                      duration:nil
-                                 skipCallbacks:YES];
-
-        // Correctly set status bar rect
-        // Y origin is set to -20 before animating it back to 0
-        CGRect mainScreenRect = [UIScreen mainScreen].bounds;
-        if (orientation == 3 || orientation == 4) {
-          windowRect = CGRectMake(0, -20, CGRectGetHeight(mainScreenRect), 20);
-        } else {
-          windowRect = CGRectMake(0, -20, CGRectGetWidth(mainScreenRect), 20);
-        }
-        [sVolWindow setFrame:windowRect];
 
         // Animate entry
         [UIView animateWithDuration:0.3
@@ -218,7 +214,7 @@ NSString *oldFormatter;
       }
     }];
 }
-  
+
 - (void)initializeWindow {
   // Setup window
   /*CGRect mainFrame =[[UIScreen mainScreen] bounds];//[UIApplication sharedApplication].keyWindow.frame;

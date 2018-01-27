@@ -34,30 +34,30 @@
 - (NSString *)volumeString;
 - (void)initializeWindow;
 @end
-  
+
 @interface VolumeControl : NSObject
 + (id)sharedVolumeControl;
 - (float)getMediaVolume;
 - (float)volume;
 @end
-  
+
 @interface SBStatusBarStateAggregator
 + (id)sharedInstance;
 - (void)_resetTimeItemFormatter;
 - (void)_updateTimeItems;
 - (void)_restartTimeItemTimer;
 @end
-  
+
 @interface SpringBoard : UIApplication
 - (id)_accessibilityFrontMostApplication;
 - (id)_keyWindowForScreen:(id)arg1;
 - (long long)_frontMostAppOrientation;
 @end
-  
-@interface SBApplication
+
+@interface SBApplication : NSObject
 - (_Bool)statusBarHiddenForCurrentOrientation;
 @end
-  
+
 @interface UIStatusBarWindow : UIWindow
 + (struct CGRect)statusBarWindowFrame;
 - (id)initWithFrame:(struct CGRect)arg1;

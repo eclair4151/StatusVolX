@@ -11,7 +11,7 @@
     int legibilityStyle = [fgStyle legibilityStyle];
     UIColor *fgColor = [fgStyle textColorForStyle:legibilityStyle];
     UIImage *whiteImage = [self makeVolumeImageForState:val withColor:fgColor];
-    
+
     // We need to play around with the shadow image more...
     // UIImage *shadowImage = [self.foregroundStyle shadowImageForImage:whiteImagewithIdentifier:[NSString stringWithFormat:@"SV_%d",val] forStyle:[self.foregroundStyle legibilityStyle] withStrength:0.0];
 
@@ -22,7 +22,7 @@
     return %orig;
   }
 }
-  
+
 %new(@:d@)
 - (UIImage *)makeVolumeImageForState:(int)state withColor:(UIColor *)color {
   UIImage *theImage;

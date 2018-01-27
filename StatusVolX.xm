@@ -1,6 +1,6 @@
 #import "StatusVolX.h"
 
-bool sVolIsVisible =NO;
+bool sVolIsVisible = NO;
 
 StatusVolX *svx;
 NSString *oldFormatter;
@@ -29,13 +29,13 @@ NSString *oldFormatter;
   %orig;
 
   int theMode = MSHookIvar<int>(self,"_mode");
-  if (theMode == 0){
+  if (theMode == 0) {
     [svx showVolume:[self getMediaVolume]*16];
   } else{
     [svx showVolume:[self volume]*16];
   }
 }
-  
+
 // Force hide volume HUD
 - (_Bool)_HUDIsDisplayableForCategory:(id)arg1 {
   return NO;
@@ -99,14 +99,14 @@ NSString *oldFormatter;
 
 - (id)init {
   self = [super init];
-  if (self){
+  if (self) {
     volume = 0;
     self.showingVolume = NO;
     [self initializeWindow];
   }
   return self;
 }
-  
+
 - (void)showVolume:(float)vol {
   volume =(int)vol;
   self.showingVolume = YES;
@@ -127,66 +127,75 @@ NSString *oldFormatter;
   [self statusPeek];
 }
 
+- (bool)isCurrentAppStatusBarHidden {
+  SpringBoard *springBoard = (SpringBoard *)[UIApplication sharedApplication];
+  SBApplication *frontApp = (SBApplication *)[springBoard _accessibilityFrontMostApplication];
+
+  if (frontApp == nil) return false;
+
+  if ([frontApp respondsToSelector:@selector(statusBarHiddenForCurrentOrientation)]) {
+    return [frontApp statusBarHiddenForCurrentOrientation];
+  }
+
+  return false;
+}
+
 - (void)statusPeek {
-  SpringBoard *SB = (SpringBoard *)[UIApplication sharedApplication];
-  SBApplication *SBA = (SBApplication *)[SB _accessibilityFrontMostApplication];
+  if (![self isCurrentAppStatusBarHidden])
+    return;
 
-  if (SBA != nil) {
-    if ([SBA statusBarHiddenForCurrentOrientation]) {
-      // Show and set hide timer
-      if (!sVolIsVisible || isAnimatingClose) {
-        // Rotate status bar
-        long orientation = (long)[(SpringBoard *)[UIApplication sharedApplication] _frontMostAppOrientation];
-        [sVolWindow _rotateWindowToOrientation:orientation
-                               updateStatusBar:NO
-                                      duration:nil
-                                 skipCallbacks:YES];
+  // Show and set hide timer
+  if (!sVolIsVisible || isAnimatingClose) {
+    // Rotate status bar
+    long orientation = (long)[(SpringBoard *)[UIApplication sharedApplication] _frontMostAppOrientation];
+    [sVolWindow _rotateWindowToOrientation:orientation
+                           updateStatusBar:NO
+                                  duration:nil
+                             skipCallbacks:YES];
 
-        // Window adjustments
-        if (!isAnimatingClose){
-          [sVolWindow fixSvolWindow];
-          sVolIsVisible = YES;
-          [sVolWindow setHidden:NO];
-        } else{
-          svolCloseInterrupt =YES;
-        }
+    // Window adjustments
+    if (!isAnimatingClose) {
+      [sVolWindow fixSvolWindow];
+      sVolIsVisible = YES;
+      [sVolWindow setHidden:NO];
+    } else {
+      svolCloseInterrupt =YES;
+    }
 
-        // Animate entry
-        [UIView animateWithDuration:0.3
-                              delay:nil
-                            options:(UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionAllowUserInteraction)
-                         animations:^{
+    // Animate entry
+    [UIView animateWithDuration:0.3
+                          delay:nil
+                        options:(UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionAllowUserInteraction)
+                     animations:^{
 
-            CGRect windowRect = sVolWindow.frame;
-            windowRect.origin.y = 0;
-            [sVolWindow setFrame:windowRect];
-          } completion:^(BOOL finished){
-            // Reset the timer
-            svolCloseInterrupt = NO;
-            if (hideTimer != nil) {
-              [hideTimer invalidate];
-              hideTimer = nil;
-            }
-
-            hideTimer = [NSTimer scheduledTimerWithTimeInterval:2.0
-                                                         target:self
-                                                       selector:@selector(setNotShowingVolume)
-                                                       userInfo:nil
-                                                        repeats:NO];
-          }];
-      } else {
+        CGRect windowRect = sVolWindow.frame;
+        windowRect.origin.y = 0;
+        [sVolWindow setFrame:windowRect];
+      } completion:^(BOOL finished) {
         // Reset the timer
+        svolCloseInterrupt = NO;
         if (hideTimer != nil) {
           [hideTimer invalidate];
           hideTimer = nil;
         }
+
         hideTimer = [NSTimer scheduledTimerWithTimeInterval:2.0
-                                                    target:self
-                                                  selector:@selector(setNotShowingVolume)
-                                                  userInfo:nil
-                                                   repeats:NO];
-      }
+                                                     target:self
+                                                   selector:@selector(setNotShowingVolume)
+                                                   userInfo:nil
+                                                    repeats:NO];
+      }];
+  } else {
+    // Reset the timer
+    if (hideTimer != nil) {
+      [hideTimer invalidate];
+      hideTimer = nil;
     }
+    hideTimer = [NSTimer scheduledTimerWithTimeInterval:2.0
+                                                target:self
+                                              selector:@selector(setNotShowingVolume)
+                                              userInfo:nil
+                                               repeats:NO];
   }
 }
 
@@ -205,10 +214,10 @@ NSString *oldFormatter;
       // Animation dependent on orientation
       windowRect.origin.y = -20;
       [sVolWindow setFrame:windowRect];
-    } completion:^(BOOL finished){
+    } completion:^(BOOL finished) {
       // Hide the window
       isAnimatingClose = NO;
-      if (finished && !svolCloseInterrupt){
+      if (finished && !svolCloseInterrupt) {
         sVolIsVisible = NO;
         [sVolWindow setHidden:YES];
       }
@@ -260,7 +269,7 @@ NSString *oldFormatter;
 - (void)setNotShowingVolume {
   hideTimer =nil;
 
-  if (sVolIsVisible){
+  if (sVolIsVisible) {
     hideTimer =[NSTimer scheduledTimerWithTimeInterval:1.0
                                                 target:self
                                               selector:@selector(hideSvolWindow)

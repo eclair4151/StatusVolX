@@ -63,3 +63,7 @@
 - (id)initWithFrame:(struct CGRect)arg1;
 - (int)orientation;
 @end
+
+@interface UIScreen (SVXUIScreen)
+- (CGRect)_boundsForInterfaceOrientation:(long long)arg1 ;
+@end

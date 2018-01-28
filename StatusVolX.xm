@@ -66,20 +66,30 @@ NSString *oldFormatter;
   }
 }
 
+- (CGRect)getScreenBoundsForOrientation:(int)orientation {
+  UIScreen *mainScreen = [UIScreen mainScreen];
+  if ([mainScreen respondsToSelector:@selector(_boundsForInterfaceOrientation:)]) {
+    return [mainScreen _boundsForInterfaceOrientation:orientation];
+  }
+
+  if (orientation != 3 && orientation != 4) return mainScreen.bounds;
+
+  return CGRectMake(mainScreen.bounds.origin.x,
+                    mainScreen.bounds.origin.y,
+                    mainScreen.bounds.size.height,
+                    mainScreen.bounds.size.width);
+}
+
 // Fix frame after orientation
 - (void)fixSvolWindow {
   // Reset frame
   // Correctly set status bar rect
   // Y origin is set to -20 before animating it back to 0
-  CGRect mainScreenRect = [UIScreen mainScreen].bounds;
-  CGRect windowRect = self.frame;
   long orientation = (long)[(SpringBoard *)[UIApplication sharedApplication] _frontMostAppOrientation];
-  if (orientation == 3 || orientation == 4) {
-    windowRect = CGRectMake(0, 0, CGRectGetHeight(mainScreenRect), 20);
-  } else {
-    windowRect = CGRectMake(0, 0, CGRectGetWidth(mainScreenRect), 20);
-  }
+  CGRect mainScreenRect = [self getScreenBoundsForOrientation:orientation];
+  CGRect windowRect = CGRectMake(0, 0, CGRectGetWidth(mainScreenRect), 20);
 
+  // Change y position if the volume bar is supposed to be hidden
   if (!sVolIsVisible) {
     windowRect.origin.y = -20;
   }
@@ -137,7 +147,14 @@ NSString *oldFormatter;
     return [frontApp statusBarHiddenForCurrentOrientation];
   }
 
-  return false;
+  // if (NSClassFromString(@"SBStatusBarManager")) {
+  //   SBStatusBarManager *sbStatusBarManager = [%c(SBStatusBarManager) sharedInstance];
+  //   if (sbStatusBarManager != nil && [sbStatusBarManager respondsToSelector:@selector(isFrontMostStatusBarHidden)]) {
+  //     return [sbStatusBarManager isFrontMostStatusBarHidden];
+  //   }
+  // }
+
+  return true;
 }
 
 - (void)statusPeek {
@@ -159,7 +176,7 @@ NSString *oldFormatter;
       sVolIsVisible = YES;
       [sVolWindow setHidden:NO];
     } else {
-      svolCloseInterrupt =YES;
+      svolCloseInterrupt = YES;
     }
 
     // Animate entry
@@ -252,7 +269,9 @@ NSString *oldFormatter;
 
   int statusBarStyle = 0x12F; //Normal notification center style
   UIInterfaceOrientation orientation = [(SpringBoard *)[UIApplication sharedApplication] _frontMostAppOrientation];
-  UIStatusBar *statusBar = [[UIStatusBar alloc] initWithFrame:CGRectMake(0,0,UIApplication.sharedApplication.statusBar.bounds.size.width,[UIStatusBar.class heightForStyle:statusBarStyle orientation:orientation])];
+  float statusBarHeight = [UIStatusBar.class heightForStyle:statusBarStyle orientation:orientation];
+  float statusBarWidth = UIApplication.sharedApplication.statusBar.bounds.size.width;
+  UIStatusBar *statusBar = [[UIStatusBar alloc] initWithFrame:CGRectMake(0, 0, statusBarWidth, statusBarHeight)];
   [statusBar requestStyle:statusBarStyle];
   statusBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
   [primaryVC.view addSubview:statusBar];

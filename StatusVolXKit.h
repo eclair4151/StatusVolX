@@ -14,3 +14,8 @@
 @interface _UILegibilityImageSet
 + (id)imageFromImage:(id)arg1 withShadowImage:(id)arg2;
 @end
+
+@interface UIApplication (SVXUIApplication)
+- (long long)_frontMostAppOrientation;
+- (bool)_isStatusBarHiddenForOrientation:(long long)arg1;
+@end

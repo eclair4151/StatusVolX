@@ -68,10 +68,6 @@ static void SendAppStatusBarVisibility(bool hidden) {
 }
 
 %hook UIApplication
-- (bool)isStatusBarHidden {
-  SendAppStatusBarVisibility(%orig);
-  return %orig;
-}
 - (bool)_isStatusBarHiddenForOrientation:(long long)arg1 {
   SendAppStatusBarVisibility(%orig);
   return %orig;
@@ -110,6 +106,6 @@ static void SendAppStatusBarVisibility(bool hidden) {
 }
 - (void)applicationDidBecomeActive:(UIApplication *)arg1 {
   %orig;
-  SendAppStatusBarVisibility([self isStatusBarHidden]);
+  SendAppStatusBarVisibility([self _isStatusBarHiddenForOrientation:[self _frontMostAppOrientation]]);
 }
 %end

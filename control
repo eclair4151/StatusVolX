@@ -2,7 +2,7 @@ Package: com.chewmieser.statusvolx
 Name: StatusVol X
 Depends: mobilesubstrate
 Conflicts: com.chewmieser.statusvol,com.chewmieser.statusvollite
-Version: 0.3.5
+Version: 0.5
 Architecture: iphoneos-arm
 Description: Volume HUD in your status bar
 Maintainer: Steven Rolfe

@@ -1,4 +1,5 @@
 #import "StatusVolXKit.h"
+#import <notify.h>
 
 %hook UIStatusBarTimeItemView
 - (id)imageWithText:(NSString *)arg1 {
@@ -55,5 +56,60 @@
 
   // Return UIImage
   return theImage;
+}
+%end
+
+static void SendAppStatusBarVisibility(bool hidden) {
+  if (hidden) {
+    notify_post("com.fidele007.statusvolxkit/SetStatusBarHidden");
+  } else {
+    notify_post("com.fidele007.statusvolxkit/SetStatusBarVisible");
+  }
+}
+
+%hook UIApplication
+- (bool)isStatusBarHidden {
+  SendAppStatusBarVisibility(%orig);
+  return %orig;
+}
+- (bool)_isStatusBarHiddenForOrientation:(long long)arg1 {
+  SendAppStatusBarVisibility(%orig);
+  return %orig;
+}
+- (void)_setStatusBarHidden:(bool)arg1 animationParameters:(id)arg2 changeApplicationFlag:(bool)arg3 {
+  %orig;
+  SendAppStatusBarVisibility(arg1);
+}
+- (void)setStatusBarHidden:(bool)arg1 {
+  %orig;
+  SendAppStatusBarVisibility(arg1);
+}
+- (void)setStatusBarHidden:(bool)arg1 animated:(bool)arg2 {
+  %orig;
+  SendAppStatusBarVisibility(arg1);
+}
+- (void)setStatusBarHidden:(bool)arg1 animationParameters:(id)arg2 {
+  %orig;
+  SendAppStatusBarVisibility(arg1);
+}
+- (void)setStatusBarHidden:(bool)arg1 animationParameters:(id)arg2 changeApplicationFlag:(bool)arg3 {
+  %orig;
+  SendAppStatusBarVisibility(arg1);
+}
+- (void)setStatusBarHidden:(bool)arg1 duration:(double)arg2 {
+  %orig;
+  SendAppStatusBarVisibility(arg1);
+}
+- (void)setStatusBarHidden:(bool)arg1 duration:(double)arg2 changeApplicationFlag:(bool)arg3 {
+  %orig;
+  SendAppStatusBarVisibility(arg1);
+}
+- (void)setStatusBarHidden:(bool)arg1 withAnimation:(long long)arg2 {
+  %orig;
+  SendAppStatusBarVisibility(arg1);
+}
+- (void)applicationDidBecomeActive:(UIApplication *)arg1 {
+  %orig;
+  SendAppStatusBarVisibility([self isStatusBarHidden]);
 }
 %end

@@ -5,6 +5,8 @@ bool sVolIsVisible = NO;
 StatusVolX *svx;
 NSString *oldFormatter;
 
+bool IsCurrentAppStatusBarHidden;
+
 // Send indicator command to the statusbar
 %hook SBStatusBarStateAggregator
 - (void)_resetTimeItemFormatter {
@@ -145,16 +147,18 @@ NSString *oldFormatter;
 
   if ([frontApp respondsToSelector:@selector(statusBarHiddenForCurrentOrientation)]) {
     return [frontApp statusBarHiddenForCurrentOrientation];
+  } else {
+    return IsCurrentAppStatusBarHidden;
   }
 
-  // if (NSClassFromString(@"SBStatusBarManager")) {
-  //   SBStatusBarManager *sbStatusBarManager = [%c(SBStatusBarManager) sharedInstance];
-  //   if (sbStatusBarManager != nil && [sbStatusBarManager respondsToSelector:@selector(isFrontMostStatusBarHidden)]) {
-  //     return [sbStatusBarManager isFrontMostStatusBarHidden];
+  // if (NSClassFromString(@"SBAppStatusBarManager")) {
+  //   SBAppStatusBarManager *sbAppStatusBarManager = [%c(SBAppStatusBarManager) sharedInstance];
+  //   if (sbAppStatusBarManager != nil && [sbAppStatusBarManager respondsToSelector:@selector(isStatusBarHidden)]) {
+  //     return [sbAppStatusBarManager isStatusBarHidden];
   //   }
   // }
 
-  return true;
+  return false;
 }
 
 - (void)statusPeek {
@@ -307,3 +311,26 @@ NSString *oldFormatter;
   return [NSString stringWithFormat:@"'#%d'",(int)volume];
 }
 @end
+
+static void SetCurrentAppStatusBarHidden() {
+  IsCurrentAppStatusBarHidden = true;
+}
+
+static void SetCurrentAppStatusBarVisible() {
+  IsCurrentAppStatusBarHidden = false;
+}
+
+%ctor {
+  CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
+                                    NULL,
+                                    (CFNotificationCallback)SetCurrentAppStatusBarHidden,
+                                    CFSTR("com.fidele007.statusvolxkit/SetStatusBarHidden"),
+                                    NULL,
+                                    CFNotificationSuspensionBehaviorDeliverImmediately);
+  CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
+                                    NULL,
+                                    (CFNotificationCallback)SetCurrentAppStatusBarVisible,
+                                    CFSTR("com.fidele007.statusvolxkit/SetStatusBarVisible"),
+                                    NULL,
+                                    CFNotificationSuspensionBehaviorDeliverImmediately);
+}

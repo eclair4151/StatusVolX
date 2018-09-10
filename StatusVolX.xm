@@ -308,7 +308,9 @@ bool IsCurrentAppStatusBarHidden;
 }
 
 - (NSString *)volumeString {
-  return [NSString stringWithFormat:@"'#%d'",(int)volume];
+  NSString *filledVol = [@"" stringByPaddingToLength:(int)volume withString:@"●" startingAtIndex:0];
+  NSString *emptyVol = [@"" stringByPaddingToLength:(16 - (int)volume) withString:@"○" startingAtIndex:0];
+  return [NSString stringWithFormat: @"%@%@", filledVol, emptyVol];
 }
 @end
 

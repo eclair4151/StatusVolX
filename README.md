@@ -1,4 +1,6 @@
 # StatusVol X
-This is a fork of the original [StatusVol X project](https://github.com/srolfe/StatusVolX) which aims to iron out all the bugs. No new features will be included or should be expected.
+This is a fork of the modified [StatusVol X project](https://github.com/fidele007/StatusVolX). Its adds compatibility for iOS 11.3.X
 
-All credits to [Steve Rolfe](https://github.com/srolfe) who brought this tweak to life.
+This has only been tested on iOS 11.3.1 on an iPhone 7 Plus. Due to the way I have changed the implementation of the dot view this may not work on smaller devices.
+
+All credits to [Steve Rolfe](https://github.com/srolfe) and [fidele007](https://github.com/fidele007) for the initial tweak
